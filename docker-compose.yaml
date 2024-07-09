@@ -3,7 +3,7 @@ version: '3.9'
 services:
   db:
     image: postgres:16.2-alpine
-    container_name: db
+    container_name: localhost
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:

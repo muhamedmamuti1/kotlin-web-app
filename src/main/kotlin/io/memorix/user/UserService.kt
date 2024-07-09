@@ -1,21 +1,20 @@
 package io.memorix.user
 
-import io.memorix.exceptions.*
+import io.memorix.responses.*
 import org.mindrot.jbcrypt.BCrypt
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.regex.Pattern
 
-private val EMAIL_REGEX_PATTERN = Pattern.compile(
-    "^\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+private val emailRegex = Regex(
+    "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$"
 )
+val passwordRegex = Regex("^(?=.*[A-Z]).{6,}\$")
 
 class UserService : KoinComponent {
     private val userRepository: UserRepositoryInterface by inject()
 
     private fun isValidEmail(email: String): Boolean {
-        val matcher = EMAIL_REGEX_PATTERN.matcher(email)
-        return matcher.matches()
+        return emailRegex.matches(email)
     }
 
     private suspend fun emailExists(email: String): Boolean {
@@ -38,6 +37,10 @@ class UserService : KoinComponent {
 
         if (user.password.isBlank()) {
             throw InvalidUserDataException()
+        }
+
+        if (!passwordRegex.matches(user.password)) {
+            throw InvalidPasswordException()
         }
 
         val hashedPassword = hashPassword(user.password)

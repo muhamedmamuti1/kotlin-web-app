@@ -6,6 +6,7 @@ services:
     container_name: localhost
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./src/main/kotlin/io/memorix/db/sqlscripts:/docker-entrypoint-initdb.d
     env_file:
       - .env
     environment:

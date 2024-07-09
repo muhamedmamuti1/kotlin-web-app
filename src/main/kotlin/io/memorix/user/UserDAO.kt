@@ -1,4 +1,4 @@
-package io.memorix.db
+package io.memorix.user
 
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass

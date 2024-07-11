@@ -21,6 +21,10 @@ class UserRepository(
         UserDAO.all().map(::daoToModel)
     }
 
+    override suspend fun countUsers(): Long = suspendTransaction(database) {
+        UserDAO.count()
+    }
+
     override suspend fun usersByName(query: String, limit: Int): List<User> = suspendTransaction(database) {
         UserDAO
             .find { UserTable.name.lowerCase() like "${query.lowercase(Locale.getDefault())}%" }

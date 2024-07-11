@@ -48,11 +48,15 @@ class UserService : KoinComponent {
         userRepository.addUser(userWithHashedPassword)
     }
 
-    suspend fun getUsers(query: String?, limit: String?): List<User> {
+    suspend fun getUsers(query: String?, limit: String?): UsersResponse {
         if (query == null) {
             throw InvalidUserDataException()
         }
         val limitInt = Integer.parseInt(limit)
-        return userRepository.usersByName(query, limitInt)
+        val filteredUsers = userRepository.usersByName(query, limitInt)
+        val userResponses = filteredUsers.map { user ->
+            UserResponse(email = user.email, name = user.name)
+        }
+        return UsersResponse(users = userResponses, total = userRepository.countUsers().toInt())
     }
 }

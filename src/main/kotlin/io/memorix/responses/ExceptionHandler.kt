@@ -11,9 +11,9 @@ class InvalidPasswordException : Exception()
 
 suspend fun handleException(ex: Exception, call: ApplicationCall) {
     when (ex) {
-        is DuplicateEmailException -> call.respond(HttpStatusCode.BadRequest, ex.message ?: ResponseMessages.DUPLICATE_EMAIL)
-        is InvalidUserDataException -> call.respond(HttpStatusCode.BadRequest, ResponseMessages.INVALID_USER_DATA)
-        is InvalidPasswordException -> call.respond(HttpStatusCode.BadRequest, ResponseMessages.INVALID_PASSWORD)
+        is DuplicateEmailException -> call.respond(HttpStatusCode.BadRequest, ErrorResponse(ex.message ?: ResponseMessages.DUPLICATE_EMAIL))
+        is InvalidUserDataException -> call.respond(HttpStatusCode.BadRequest, ErrorResponse(ResponseMessages.INVALID_USER_DATA))
+        is InvalidPasswordException -> call.respond(HttpStatusCode.BadRequest, ErrorResponse(ResponseMessages.INVALID_PASSWORD))
         is IllegalStateException, is JsonConvertException -> call.respond(HttpStatusCode.BadRequest)
         else -> call.respond(HttpStatusCode.InternalServerError)
     }

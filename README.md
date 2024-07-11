@@ -1,6 +1,6 @@
 # Ktor Starter project
 
-This is the Vitec Memorix Ktor starter project. This project is meant as a starting point for small projects and coding assignments.
+This is a simple Kotlin Ktor app.
 
 This project contains the following components:
 
@@ -10,24 +10,44 @@ This project contains the following components:
 - Dependency Injection: Koin - https://insert-koin.io/
 - Build tool: Gradle - https://gradle.org/
 
-## Using this template
+### Example APIs
+```shell
+@POST http://localhost:8080/users
+```
 
-On https://github.com/vitec-memorix/ktor-starter:
-- In the top right, above the file list, click on "Use this template"
-- Select "Create a new repository"
-- Follow the steps to create a new repository from the template
+```shell
+@GET http://localhost:8080/users?query=jo&limit=3
+```
+
+### Payloads
+
+#### @POST
+```shell
+{
+    "name": "LeBron James",
+    "email": "ljames@nba.com",
+    "password": "Testi123@"
+}
+```
+
+#### @GET
+```shell
+{
+    "users": [
+        {
+            "email": "jbreuer@yahoo.com",
+            "name": "Joseph Breuer"
+        },
+        {
+            "email": "jcena@wwe.com",
+            "name": "John Cena"
+        }
+    ],
+    "total": 9
+}
+```
 
 ## Setup
-
-Copy the example .env file and fill in a database password:
-```shell
-cp .env.dist .env
-```
-You might want to change the database hostname to something more specific in both ```.env``` and ```docker-compose.yaml``` to prevent conflicts with other projects.
-
-## Depencies
-
-Dependent services (in this case the PostgreSQL database) are managed using Docker Compose.
 
 ### Starting
 ```shell
@@ -37,12 +57,6 @@ docker compose up -d
 ### Stopping
 ```shell
 docker compose stop
-```
-
-### Resetting
-Beware: this will delete all the data in your database!
-```shell
-docker compose down -v
 ```
 
 ## Running the application

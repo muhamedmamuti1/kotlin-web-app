@@ -10,8 +10,13 @@ import io.memorix.responses.handleException
 fun Route.user() {
     val userService = UserService()
 
-    // Add your routes here
     route("/users") {
+        /**
+         * Create user endpoint.
+         *
+         * @body User full name, email and password.
+         * @return Empty body with status 202 Accepted.
+         */
         post {
             try {
                 val user = call.receive<User>()
@@ -22,6 +27,13 @@ fun Route.user() {
             }
         }
 
+        /**
+         * Search users endpoint.
+         *
+         * @param query Name of the users to search.
+         * @param limit Limits the number of rows to return.
+         * @return List of found users with the total number of users in system.
+         */
         get {
             val query = call.request.queryParameters["query"]
             val limit = call.request.queryParameters["limit"]

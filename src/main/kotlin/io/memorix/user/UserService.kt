@@ -1,5 +1,6 @@
 package io.memorix.user
 
+import io.ktor.server.plugins.*
 import io.memorix.responses.*
 import org.mindrot.jbcrypt.BCrypt
 import org.koin.core.component.KoinComponent
@@ -13,8 +14,12 @@ val passwordRegex = Regex("^(?=.*[A-Z]).{6,}\$")
 class UserService : KoinComponent {
     private val userRepository: UserRepositoryInterface by inject()
 
-    private fun isValidEmail(email: String): Boolean {
-        return emailRegex.matches(email)
+    private fun String.isValidEmail(emailRegex: Regex): Boolean {
+        return emailRegex.matches(this)
+    }
+
+    private fun String.isValidPassword(passwordRegex: Regex): Boolean {
+        return passwordRegex.matches(this)
     }
 
     private suspend fun emailExists(email: String): Boolean {
@@ -22,16 +27,31 @@ class UserService : KoinComponent {
         return users.any { it.email == email }
     }
 
+    /**
+     * This function encrypts a given password.
+     *
+     * @param password The plaintext password to encrypt.
+     * @return The encrypted password.
+     */
     private fun hashPassword(password: String): String {
         return BCrypt.hashpw(password, BCrypt.gensalt())
     }
 
+    /**
+     * This function validates user's name, email and password and creates the user.
+     *
+     * @param user User object.
+     */
     suspend fun validateAndAddUser(user: User) {
+        if (user.name.isBlank()) {
+            throw BadRequestException(ResponseMessages.INVALID_USER_NAME)
+        }
+
         if (emailExists(user.email)) {
             throw DuplicateEmailException(user.email)
         }
 
-        if (!isValidEmail(user.email)) {
+        if (!user.email.isValidEmail(emailRegex)) {
             throw InvalidUserDataException()
         }
 
@@ -39,7 +59,7 @@ class UserService : KoinComponent {
             throw InvalidUserDataException()
         }
 
-        if (!passwordRegex.matches(user.password)) {
+        if (!user.password.isValidPassword(passwordRegex)) {
             throw InvalidPasswordException()
         }
 

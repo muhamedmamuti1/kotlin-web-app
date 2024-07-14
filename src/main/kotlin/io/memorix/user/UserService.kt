@@ -6,19 +6,21 @@ import org.mindrot.jbcrypt.BCrypt
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-private val emailRegex = Regex(
-    "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$"
-)
-val passwordRegex = Regex("^(?=.*[A-Z]).{6,}\$")
-
 class UserService : KoinComponent {
     private val userRepository: UserRepositoryInterface by inject()
 
-    private fun String.isValidEmail(emailRegex: Regex): Boolean {
+    private fun String.isValidName(): Boolean {
+        val nameRegex = Regex("^[a-zA-Z\\s]+\$")
+        return nameRegex.matches(this)
+    }
+
+    private fun String.isValidEmail(): Boolean {
+        val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
         return emailRegex.matches(this)
     }
 
-    private fun String.isValidPassword(passwordRegex: Regex): Boolean {
+    private fun String.isValidPassword(): Boolean {
+        val passwordRegex = Regex("^(?=.*[A-Z]).{6,}\$")
         return passwordRegex.matches(this)
     }
 
@@ -47,11 +49,15 @@ class UserService : KoinComponent {
             throw BadRequestException(ResponseMessages.INVALID_USER_NAME)
         }
 
+        if (!user.name.isValidName()) {
+            throw BadRequestException(ResponseMessages.NAME_MUST_BE_STRING)
+        }
+
         if (emailExists(user.email)) {
             throw DuplicateEmailException(user.email)
         }
 
-        if (!user.email.isValidEmail(emailRegex)) {
+        if (!user.email.isValidEmail()) {
             throw InvalidUserDataException()
         }
 
@@ -59,7 +65,7 @@ class UserService : KoinComponent {
             throw InvalidUserDataException()
         }
 
-        if (!user.password.isValidPassword(passwordRegex)) {
+        if (!user.password.isValidPassword()) {
             throw InvalidPasswordException()
         }
 
@@ -69,10 +75,16 @@ class UserService : KoinComponent {
     }
 
     suspend fun getUsers(query: String?, limit: String?): UsersResponse {
-        if (query == null) {
-            throw InvalidUserDataException()
+        // Validate the query parameter
+        if (query == null || !query.isValidName()) {
+            throw InvalidQueryParamException()
         }
-        val limitInt = Integer.parseInt(limit)
+        // Validate and parse the limit parameter
+        val limitInt = try {
+            limit?.toInt() ?: throw InvalidQueryParamException()
+        } catch (e: NumberFormatException) {
+            throw InvalidQueryParamException()
+        }
         val filteredUsers = userRepository.usersByName(query, limitInt)
         val userResponses = filteredUsers.map { user ->
             UserResponse(email = user.email, name = user.name)

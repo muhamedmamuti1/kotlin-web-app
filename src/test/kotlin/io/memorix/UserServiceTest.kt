@@ -1,7 +1,6 @@
 package io.memorix
 
-import io.memorix.responses.DuplicateEmailException
-import io.memorix.responses.InvalidUserDataException
+import io.memorix.responses.*
 import io.memorix.user.User
 import io.memorix.user.UserRepositoryInterface
 import io.memorix.user.UserService
@@ -17,8 +16,8 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.inject
-import kotlin.test.assertFailsWith
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 val testModule = module {
     single<UserRepositoryInterface> { mockk(relaxed = true) }
@@ -78,7 +77,7 @@ class UserServiceTest : KoinTest {
 
     @Test
     fun `test getUsers with null query`() = runBlocking<Unit> {
-        assertFailsWith<InvalidUserDataException> {
+        assertFailsWith<InvalidQueryParamException> {
             userService.getUsers(null, "10")
         }
     }

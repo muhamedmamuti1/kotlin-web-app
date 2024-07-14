@@ -1,6 +1,6 @@
-# Ktor Starter project
+# Kotlin Web App
 
-This is a simple Kotlin Ktor app.
+This is a simple Kotlin web app that lets you create a user and search for existing users in the system.
 
 This project contains the following components:
 

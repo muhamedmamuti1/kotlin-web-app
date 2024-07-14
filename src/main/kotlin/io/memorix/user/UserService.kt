@@ -1,29 +1,32 @@
 package io.memorix.user
 
-import io.ktor.server.plugins.*
 import io.memorix.responses.*
-import org.mindrot.jbcrypt.BCrypt
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.mindrot.jbcrypt.BCrypt
 
 class UserService : KoinComponent {
     private val userRepository: UserRepositoryInterface by inject()
 
+    // Extension functions for username format validation
     private fun String.isValidName(): Boolean {
         val nameRegex = Regex("^[a-zA-Z\\s]+\$")
         return nameRegex.matches(this)
     }
 
+    // Extension functions for user email format validation
     private fun String.isValidEmail(): Boolean {
         val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
         return emailRegex.matches(this)
     }
 
+    // Extension functions for user password format validation
     private fun String.isValidPassword(): Boolean {
         val passwordRegex = Regex("^(?=.*[A-Z]).{6,}\$")
         return passwordRegex.matches(this)
     }
 
+    // Checking if the given email exists in our system
     private suspend fun emailExists(email: String): Boolean {
         val users = userRepository.allUsers()
         return users.any { it.email == email }
@@ -62,7 +65,7 @@ class UserService : KoinComponent {
         }
 
         if (user.password.isBlank()) {
-            throw InvalidUserDataException()
+            throw InvalidPasswordException()
         }
 
         if (!user.password.isValidPassword()) {
@@ -75,7 +78,7 @@ class UserService : KoinComponent {
     }
 
     suspend fun getUsers(query: String?, limit: String?): UsersResponse {
-        // Validate the query parameter
+        // Validate the query parameter for username
         if (query == null || !query.isValidName()) {
             throw InvalidQueryParamException()
         }

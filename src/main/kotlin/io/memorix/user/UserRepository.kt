@@ -32,4 +32,11 @@ class UserRepository(
             .map(::daoToModel)
             .toList()
     }
+
+    override suspend fun findUserByEmail(email: String): User? = suspendTransaction(database) {
+        UserDAO
+            .find { UserTable.email.lowerCase() like email.lowercase() }
+            .map(::daoToModel)
+            .firstOrNull()
+    }
 }

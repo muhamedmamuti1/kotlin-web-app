@@ -2,12 +2,9 @@ package io.memorix.user
 
 import io.memorix.responses.*
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.mindrot.jbcrypt.BCrypt
 
-class UserService : KoinComponent {
-    private val userRepository: UserRepositoryInterface by inject()
-
+class UserService(private val userRepository: UserRepositoryInterface) : KoinComponent {
     // Extension functions for username format validation
     private fun String.isValidName(): Boolean {
         val nameRegex = Regex("^[a-zA-Z\\s]+\$")
@@ -28,8 +25,8 @@ class UserService : KoinComponent {
 
     // Checking if the given email exists in our system
     private suspend fun emailExists(email: String): Boolean {
-        val users = userRepository.allUsers()
-        return users.any { it.email == email }
+        val user = userRepository.findUserByEmail(email)
+        return user !== null
     }
 
     /**

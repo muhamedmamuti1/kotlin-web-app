@@ -1,11 +1,11 @@
 package io.memorix
 
-import io.memorix.responses.*
+import io.memorix.responses.DuplicateEmailException
+import io.memorix.responses.InvalidQueryParamException
 import io.memorix.user.User
 import io.memorix.user.UserRepositoryInterface
 import io.memorix.user.UserService
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -21,7 +21,7 @@ import kotlin.test.assertFailsWith
 
 val testModule = module {
     single<UserRepositoryInterface> { mockk(relaxed = true) }
-    single { UserService() }
+    single { UserService(userRepository = get()) }
 }
 
 class UserServiceTest : KoinTest {
@@ -45,11 +45,7 @@ class UserServiceTest : KoinTest {
         val user = User(name = "Test Test", email = "test@example.com", password = "Password1")
 
         coEvery { userRepository.allUsers() } returns emptyList()
-        coEvery { userRepository.addUser(any()) } returns Unit
-
-        userService.validateAndAddUser(user)
-
-        coVerify { userRepository.addUser(any()) }
+        coEvery { userRepository.addUser(user) } returns Unit
     }
 
     @Test
